@@ -47,21 +47,25 @@ if($_GET["i"] == "getsubjects"){
 	$periods = get_periods();
 	echo '<thead class="thead-dark"><tr>';
 	echo '<th scope="col"></th>';
+	/*
+	var_dump(date_default_timezone_get());
+	var_dump(date("d-m-Y H:i:s"));
+	var_dump(date("H:i:s",time()));
+	*/
+	$ttime = strtotime(date("H:i:s",time()));
+
 	foreach($periods AS $keyper => $per){
-		$ttime = date("H:i",time());
-		echo '<th scope="col" class="text-center small font-weight-bold '.($ttime >= $per["starttime"] && ((isset($periods[$keyper+1]) && $ttime < $periods[$keyper+1]["starttime"]) || ($ttime < $per["endtime"])) ? 'bg-secondary' : '').'"><span class="textoverflow">'.$per["starttime"].' - '.$per["endtime"].'</span></th>';
+		echo '<th scope="col" class="text-center small font-weight-bold '.(	 $ttime >= strtotime($per["starttime"].':00') && $ttime < strtotime('+10 minutes '.$per["endtime"].':00') ? 'bg-secondary' : '').'"><span class="textoverflow">'.$per["starttime"].' - '.$per["endtime"].'</span></th>';
 	}
 	echo '</tr></thead>';
 	$days = get_days();
 	echo '<tbody>';	
 	
-
-	
 	foreach($days AS $day){
-		echo '<tr scope="col" class="subjectday" data-day="'.$day["id"].'">';
-		echo '<th scope="row" class="text-center text-light '.($today_dayid == $day["id"] ? 'bg-secondary' : '').'" style="width: 0.5%; height: 65px; vertical-align:middle;">'.get_eng_shortdayname($day["short"]).'</th>';
+		echo '<tr scope="col" class="subjectday" data-day="'.$day["id"].'" '.($today_dayid == $day["id"] ? 'style="background:rgba(108,117,125,0.4);"' : '').'>';
+		echo '<th scope="row" class="text-center text-light '.($today_dayid == $day["id"] ? 'bg-secondary' : '').'" style="width: 0.5%; height: 65px; vertical-align:middle; ">'.get_eng_shortdayname($day["name"]).'</th>';
 		//cells periods
-		for($period=1;$period<10;$period++){
+		for($period=1;$period<12;$period++){
 			$les = $arr_subject[$day["id"]][$period];
 			$totalles = count($les);
 			//if(count($arr_subject[$day["id"]]) < 1){ echo '<td></td>'; break; }
@@ -73,7 +77,7 @@ if($_GET["i"] == "getsubjects"){
 				//put cards
 				$classes = implode(", ",array_map(function($v){ return $v["department"]; },$leall["classes"]));
 				$classrooms = implode(", ",array_map(function($v){ return $v["short"]; },$leall["classrooms"]));
-				$teachers = implode(", ",array_map(function($v){ return $v["lastname"]; },$leall["teachers"]));
+				$teachers = implode(", ",array_map(function($v){ return $v["short"]; },$leall["teachers"]));
 				echo
 				'<div class="bg-dark"><a data-toggle="tooltip" data-delay=\'{"show":"600", "hide":"100"}\' data-html="true" title="<small><b>'.htmlspecialchars(mb_convert_case($leall["name"], MB_CASE_UPPER, "UTF-8")).'</b>
 				<br>'.$classrooms.'
@@ -145,7 +149,8 @@ if($_GET["i"] == "getsubjects"){
 	$periods = get_periods();
 	echo '<thead class="thead-dark"><tr>';
 	echo '<th scope="col"></th>';
-	foreach($periods AS $per){
+	foreach($periods AS $pkey => $per){
+		if($pkey > 8) continue;
 		$totalLessonForThatPeriod = 0;
 		foreach($lessonStat["result"] AS $k => $v){
 			$k = (string)$k;

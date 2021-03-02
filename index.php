@@ -26,7 +26,7 @@ if(!isset($_COOKIE["_showintable"])){
 	<script src="js/popper.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/bootstrap-select.min.js"></script>
-	<script src="js/main.js?v3"></script>
+	<script src="js/main.js?v4"></script>
 </head>
 <body data-qstring="<?="&".($_SERVER['QUERY_STRING'] ? addslashes($_SERVER['QUERY_STRING']) : '').""?>">
 <div class="strip noprint"></div>
@@ -99,8 +99,7 @@ echo '</pre>';
 			</select>
 			<select class="selectpicker selectClassroom show-tick2 mr-2"  data-live-search="true" data-width="140px" data-size="20" data-style="btn-dark btn-sm" title="-- Classrooms --">
 				<?
-				$classrooms = get_classroom();
-				//var_dump($teachers);
+				$classrooms = get_classroom(false);
 				foreach($classrooms AS $classroom){
 					echo '<option value="'.$classroom['id'].'">'.$classroom['short'].'</option>';
 				}
@@ -111,7 +110,7 @@ echo '</pre>';
 				$teachers = get_teachers();
 				//var_dump($teachers);
 				foreach($teachers AS $teacher){
-					echo '<option value="'.$teacher['id'].'">'.$teacher['lastname'].'</option>';
+					echo '<option value="'.$teacher['id'].'">'.$teacher['short'].'</option>';
 				}
 				?>
 			</select>
@@ -206,7 +205,7 @@ echo '</pre>';
 		?>
 		<br> This system has been created to facilitate the selection of students who have been studying as <b>irregular</b> in Atılım.
 		
-		<br>Copyright &copy; 2019
+		<br>Copyright &copy; 2019-2020
 		
 		</div>
 	</div>
