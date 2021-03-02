@@ -202,8 +202,8 @@ function blinksubject(elem){
 function getUsedPeriods(){
 	var _filledPeriods = [];
 	calculateNewDataCounts();
-	//table td 5x9 iptal
-	for(var sp=0; sp<45; sp++){
+	//table td 5x9 iptal -> new 6x11
+	for(var sp=0; sp<66; sp++){
 		var sbp = $("table td.subjectperiod").eq(sp);
 		if(sbp.data("count") > 0)
 		_filledPeriods.push({period:sbp.data("period"),day:sbp.data("day"),count:sbp.data("count"),dp:sbp.data("day")+''+sbp.data("period")});
