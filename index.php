@@ -219,14 +219,6 @@ echo '</pre>';
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,100,300,400italic,500italic,500,700,900&amp;subset=latin,latin-ext" type="text/css">
 </div>
 </div>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132747595-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'UA-132747595-1');
-</script>
 </body>
 </html>
 <? @ob_end_flush();?>
