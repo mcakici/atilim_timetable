@@ -1,6 +1,9 @@
-<?php @session_start();@ob_start();
+<?php @session_start();
+@ob_start();
 ini_set('max_execution_time', 0);
-set_time_limit(0);@header("Content-Type: text/html; charset=utf-8");@ob_end_clean();
+set_time_limit(0);
+@header("Content-Type: text/html; charset=utf-8");
+@ob_end_clean();
 error_reporting(1);
 $starsArr = array();
 $izin = "var";
@@ -11,11 +14,15 @@ $timetablepageMain = bot_curl("https://atilimengr.edupage.org/timetable/view.php
 preg_match_all("/ASC\.gsechash=\"(.*?)\";/is", $timetablepageMain, $contentmatched);
 //var_dump($contentmatched[1][0]);
 $secCode = $contentmatched[1][0];
+
+$timetableviewerData = bot_postcurl("https://atilimengr.edupage.org/timetable/server/ttviewer.js?__func=getTTViewerData", '{"__args":[null,2020],"__gsh":"00000000"}');
+preg_match_all("/\"default_num\": \"(.*?)\",/is", $timetableviewerData, $contentmatched);
+$argNum = $contentmatched[1][0];
 //echo htmlentities($timetablepage2);
 //$timetablepage = bot_postcurl("https://atilimengr.edupage.org/timetable/server/ttviewer.js?__func=getTTViewerData");
-echo $secCode;
+echo $secCode.' '.$argNum;
 echo '<hr>';
-$timetablepage = bot_postcurl("https://atilimengr.edupage.org/timetable/server/regulartt.js?__func=regularttGetData", '{"__args":[null,"17"],"__gsh":"' . $secCode . '"}');
+$timetablepage = bot_postcurl("https://atilimengr.edupage.org/timetable/server/regulartt.js?__func=regularttGetData", '{"__args":[null,"' . $argNum . '"],"__gsh":"' . $secCode . '"}');
 
 //preg_match_all("/return f\(gi([0-9]+),{(.*?)}\);/is",$timetablepage,$contentmatched);
 //$timetablepage = file_get_contents("test.txt");
@@ -33,13 +40,13 @@ $test = $test["r"]["dbiAccessorRes"]["tables"];
 //echo json_encode($test);
 //die();
 $mydbtables = ["cards", "classes", "classrooms", "lessons", "days", "periods", "programs", "subjects", "teachers", "usedperiods"];
-foreach ($mydbtables AS $mytablename) {
+foreach ($mydbtables as $mytablename) {
     $db->query("TRUNCATE " . $mytablename);
     echo $mytablename . ' table truncated<hr>';
 }
 
 echo count($test[10]["data_rows"]) . "<hr>";
-foreach ($test[0]["data_rows"] AS $key => $ss) {
+foreach ($test[0]["data_rows"] as $key => $ss) {
     //var_dump($ss);
     echo $key . " > " . $ss["name"] . "<br>";
 }
@@ -52,7 +59,7 @@ $db->query("INSERT INTO programs (name,short,updatedtime,verify) VALUES('" . mys
 //die();
 
 #SUBJECTS
-foreach ($test[13]["data_rows"] AS $subjects) {
+foreach ($test[13]["data_rows"] as $subjects) {
     //$idprefix = substr($subjects["id"], 0, 1);
     //$id = str_replace($idprefix,"",$subjects["id"]);
     $id = $subjects["id"];
@@ -76,7 +83,7 @@ while ($row_sub = $query_subject->fetch_object()) {
 }
 
 #LESSONS
-foreach ($test[18]["data_rows"] AS $lesson) {
+foreach ($test[18]["data_rows"] as $lesson) {
     //var_dump($lesson);
     //$idprefix = substr($lesson["id"], 0, 1);
     //$id = str_replace($idprefix,"",$lesson["id"]);
@@ -87,10 +94,18 @@ foreach ($test[18]["data_rows"] AS $lesson) {
     $subjectid = $lesson["subjectid"];
 
     $duration = $lesson["durationperiods"];
-    $teacherids = array_map(function ($v) {return (int) str_replace(substr($v, 0, 1), "", $v);}, $lesson["teacherids"]);
-    $groupids = array_map(function ($v) {return (int) str_replace(substr($v, 0, 1), "", $v);}, $lesson["groupids"]);
-    $classids = array_map(function ($v) {return (int) str_replace(substr($v, 0, 1), "", $v);}, $lesson["classids"]);
-    $classroomids = array_map(function ($v) {return (int) str_replace(substr($v, 0, 1), "", $v);}, reset($lesson["classroomidss"]));
+    $teacherids = array_map(function ($v) {
+        return (int) str_replace(substr($v, 0, 1), "", $v);
+    }, $lesson["teacherids"]);
+    $groupids = array_map(function ($v) {
+        return (int) str_replace(substr($v, 0, 1), "", $v);
+    }, $lesson["groupids"]);
+    $classids = array_map(function ($v) {
+        return (int) str_replace(substr($v, 0, 1), "", $v);
+    }, $lesson["classids"]);
+    $classroomids = array_map(function ($v) {
+        return (int) str_replace(substr($v, 0, 1), "", $v);
+    }, reset($lesson["classroomidss"]));
 
     $termsdefid = str_replace(substr($lesson["termsdefid"], 0, 1), "", $lesson["termsdefid"]);
     $weeksdefid = str_replace(substr($lesson["weeksdefid"], 0, 1), "", $lesson["weeksdefid"]);
@@ -103,13 +118,13 @@ foreach ($test[18]["data_rows"] AS $lesson) {
 }
 
 #PERIODS
-foreach ($test[1]["data_rows"] AS $period) {
+foreach ($test[1]["data_rows"] as $period) {
     var_dump($period);
     $db->query("INSERT INTO periods (id,period,name,short,starttime,endtime) VALUES(" . $period["period"] . "," . $period["period"] . ",'" . $period["name"] . "','" . $period["short"] . "','" . $period["starttime"] . "','" . $period["endtime"] . "')");
 }
 
 #DAYSDEF
-foreach ($test[4]["data_rows"] AS $daysdef) {
+foreach ($test[4]["data_rows"] as $daysdef) {
     $id = str_replace(substr($daysdef["id"], 0, 1), "", $daysdef["id"]);
     //var_dump($daysdef);
     echo "INSERT INTO days (id,name,short,type,vals,val) VALUES(" . $id . ",'" . $daysdef["name"] . "','" . $daysdef["short"] . "','" . $daysdef["typ"] . "'," . ($daysdef["vals"] ? "'" . json_encode($daysdef["vals"]) . "'" : 'NULL') . ",'" . $daysdef["val"] . "')<br>";
@@ -117,7 +132,7 @@ foreach ($test[4]["data_rows"] AS $daysdef) {
 }
 
 #CLASSES
-foreach ($test[12]["data_rows"] AS $class) {
+foreach ($test[12]["data_rows"] as $class) {
     $id = str_replace(substr($class["id"], 0, 1), "", $class["id"]);
     //var_dump($class);
     $explodedname = explode(" ", $class["name"]);
@@ -131,26 +146,28 @@ foreach ($test[12]["data_rows"] AS $class) {
 }
 
 #CLASSROOMS
-foreach ($test[11]["data_rows"] AS $classroom) {
+foreach ($test[11]["data_rows"] as $classroom) {
     $id = str_replace(substr($classroom["id"], 0, 1), "", $classroom["id"]);
     var_dump($classroom);
     $db->query("INSERT INTO classrooms (id,name,short,color) VALUES(" . $id . ",'" . mysqli_real_escape_string($db, $classroom["name"]) . "','" . mysqli_real_escape_string($db, $classroom["short"]) . "','" . $classroom["color"] . "')");
 }
 
 #CARDS
-foreach ($test[20]["data_rows"] AS $card) {
+foreach ($test[20]["data_rows"] as $card) {
     //$id = str_replace(substr($card["id"], 0, 1),"",$card["id"]);
     $id = $card["id"];
     //$lessonid = str_replace(substr($card["lessonid"], 0, 1),"",$card["lessonid"]);
     $lessonid = $card["lessonid"];
-    $classroomids = array_map(function ($v) {return (int) str_replace(substr($v, 0, 1), "", $v);}, ($card["classroomids"]));
+    $classroomids = array_map(function ($v) {
+        return (int) str_replace(substr($v, 0, 1), "", $v);
+    }, ($card["classroomids"]));
     var_dump($card);
     echo "INSERT INTO cards (id,lessonid,period,days,weeks,classroomids) VALUES('" . $id . "','" . $lessonid . "','" . $card["period"] . "','" . $card["days"] . "','" . $card["weeks"] . "'," . (is_array($card["classroomids"]) ? "'" . json_encode($classroomids) . "'" : 'NULL') . ")<hr>";
     $db->query("INSERT INTO cards (id,lessonid,period,days,weeks,classroomids) VALUES('" . $id . "','" . $lessonid . "','" . $card["period"] . "','" . $card["days"] . "','" . $card["weeks"] . "'," . (is_array($card["classroomids"]) ? "'" . json_encode($classroomids) . "'" : 'NULL') . ")");
 }
 
 #TEACHERS
-foreach ($test[14]["data_rows"] AS $teacher) {
+foreach ($test[14]["data_rows"] as $teacher) {
     $id = str_replace(substr($teacher["id"], 0, 1), "", $teacher["id"]);
     var_dump($teacher);
 
@@ -172,7 +189,7 @@ $query = $db->query("
 while ($row_query = $query->fetch_object()) {
     $durationadded = 0;
     while ($durationadded < $row_query->duration) {
-        $db->query("INSERT INTO usedperiods(code,section,lessonid,classids,period,dayid,dp) VALUES('" . str_value($row_query->code) . "','" . str_value($row_query->section) . "','" . str_value($row_query->lessonsid) . "','" . str_value($row_query->classids) . "','" . int_value($row_query->period + $durationadded) . "','" . $row_query->dayid . "'," . $row_query->dayid . ($row_query->period + $durationadded) . ")");
+        $db->query("INSERT INTO usedperiods(code,section,lessonid,classids,period,dayid,dp) VALUES('" . str_value($row_query->code) . "','" . str_value($row_query->section) . "','" . str_value($row_query->lessonsid) . "','" . str_value($row_query->classids) . "','" . int_value($row_query->period + $durationadded) . "','" . $row_query->dayid . "','" . $row_query->dayid . ($row_query->period + $durationadded) . "')");
         $durationadded++;
     }
     echo "PERIOD INSERTED. <HR>";
@@ -181,5 +198,3 @@ while ($row_query = $query->fetch_object()) {
 echo '<hr>Zaman: ' . time() . ' = ' . date("H:i:s -- d.m.Y", time());
 //var_dump($test["changes"][1]["rows"]);
 //echo '<pre>'.$getir[0].'</pre>';
-
-?>
